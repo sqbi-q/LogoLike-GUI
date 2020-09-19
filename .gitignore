@@ -1,5 +1,5 @@
 **/target
-**/.setting
+**/.settings
 **/apache-maven-3.6.3
 .classpath
 .project
