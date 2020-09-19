@@ -9,16 +9,20 @@ import javax.swing.SwingUtilities;
 import javax.swing.filechooser.FileFilter;
 
 import java.awt.Color;
+import java.awt.FileDialog;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.Reader;
+import java.net.URISyntaxException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -57,53 +61,63 @@ public class FileMenu extends MenuClass{
 		MenuItems.get("New").addActionListener(new ActionListener(){
 			@Override
 			public void actionPerformed(ActionEvent e) {
-			    JFileChooser c = new JFileChooser();
-			    c.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-			    c.setCurrentDirectory(new File("."/*"."new File(".").getCanonicalPath()*/));
-			    int rVal = c.showDialog(c, lang.getName("Create_proj_directory"));
-			    if (rVal == JFileChooser.APPROVE_OPTION) {
-			    	String project_path = c.getCurrentDirectory().toString()+System.getProperty("file.separator")+c.getSelectedFile().getName();
-			    	int inputValue = JOptionPane.showConfirmDialog(null,
-			    	        String.format(lang.getName("is_corr_path"), project_path),
-			    	        lang.getName("Create_proj_directory"),
-			    	        JOptionPane.YES_NO_OPTION);
+				JFrame parentFrame = new JFrame();
+				FileDialog fd = new FileDialog(parentFrame, lang.getName("Create_proj_directory"), FileDialog.SAVE);
+				
+				fd.setVisible(true);
+				String filename = fd.getFile();
+				
+				if (filename != null) {
+					String dir = fd.getDirectory()+"/"+filename;
+					boolean created = new File(dir).mkdir();
+					//dir created
+					if(created) {
+		    			File main_project = new File(dir, "setting.json");
+		    			try {
+		    				FileWriter fw = new FileWriter(main_project);
 
-			    	if(inputValue == 0) {
-			    		boolean created = new File(project_path).mkdir();
-			    		if(created) {
-			    			//dir created
-			    			File main_project = new File(project_path, "main_project.lglk");
-			    			try {
-			    				FileWriter fr = new FileWriter(main_project);
-
-			    				String tmp_insert =
-			    						"#Main project file, declare objects\n"
-			    						+ "<canvas>\n"
-			    						+ "\t{level: 0}\n"
-			    						+ "\t<object>\n"
-			    						+ "\t\t{draw_line: 1, visible: 1, position: CENTER}\n"
-			    						+ "\t</object>\n"
-			    						+ "</canvas>";
-				    			fr.write(tmp_insert);
-
-				    			fr.close();
-			    			} catch(IOException er) {
-			    				//show error
+		    				//write setting
+		    				String default_setting =
+		    					"{"
+			    					+ "\"project-name\":"
+			    						+ "\"Project\","
+			    					+ "\"objects\":{"
+			    						+ "\"default\":{"
+			    							+ "\"origin-position\":[0,0],"
+			    							+ "\"sprite\":\"/images/crab.bmp\","
+			    							+ "\"sprite-size\":[32,32]"
+			    						+ "}"
+			    					+ "},"
+			    					+ "\"background-color\":[0,0,0]"
+		    					+ "}";
+			    			fw.write(default_setting);
+			    			
+			    			//paste image
+			    			
+			    			String images_dir = dir + "/images";
+			    			boolean images_dir_created = new File(images_dir).mkdir();
+			    			Path default_sprite = 
+			    					Paths.get(getClass().getResource("/assets/logolike/default_sprite/crab.bmp").toURI());
+			    			//images dir created
+			    			if(images_dir_created) {
+			    				Files.copy(new FileInputStream(default_sprite.toFile()), 
+			    						Paths.get(images_dir+"/crab.bmp"));
 			    			}
-			    		}
-			    		else {
-			    			//error
-			    			JOptionPane.showMessageDialog(null, lang.getName("couldnt_create_dir"));
-			    		}
-			    	}
-			    }
-			    /*if (rVal == JFileChooser.CANCEL_OPTION) {
-			    	//filename.setText("You pressed cancel");
-			    	//dir.setText("");
-			    }*/
+
+			    			fw.close();
+		    			} catch(IOException | URISyntaxException er) {
+		    				//show error
+		    			}
+		    		}
+		    		else {
+		    			//error
+		    			JOptionPane.showMessageDialog(null, lang.getName("couldnt_create_dir"));
+		    		}
+				}
 			}
 		});
 		MenuItems.get("Open").addActionListener(new ActionListener() {
+			//TODO JFileChooser to FileDialog
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				JFileChooser c = new JFileChooser();
