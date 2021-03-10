@@ -59,12 +59,12 @@
     </plugins>
     </build>
 
-    <repositories>
+    <!--<repositories>
         <repository>
             <id>spigot-repo</id>
             <url>https://hub.spigotmc.org/nexus/content/repositories/snapshots/</url>
         </repository>
-    </repositories>
+    </repositories>-->
     <dependencies>
         <!--Spigot API-->
         <!--<dependency>
@@ -93,11 +93,11 @@
 	  <version>1.1.1</version>
 	</dependency>-->
 
-	<dependency>
+	<!--<dependency>
 	  <groupId>com.jgoodies</groupId>
 	  <artifactId>jgoodies-forms</artifactId>
 	  <version>1.8.0</version>
-	</dependency>
+	</dependency>-->
 
     </dependencies>
 
